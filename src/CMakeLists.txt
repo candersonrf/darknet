@@ -7,6 +7,7 @@ message("WANT_GPU = ${WANT_GPU}, WANT_CUDNN = ${WANT_CUDNN}, "
 message("${PROJECT_NAME} targeting cuda architecture : ${CUDA_ARCH}")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wno-unused-result -Wno-unknown-pragmas -Wfatal-errors")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-unused-result -Wno-unknown-pragmas -Wfatal-errors")
 
 # find OpenMP and setup compiler and linker flags
 if (WANT_OPENMP)
@@ -31,7 +32,17 @@ if (WANT_CUDNN)
   add_definitions(-DCUDNN)
 endif()
 
-include_directories(${INCLUDE_DIRS} ../include ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
+if (WANT_OPENCV)
+  add_definitions(-DOPENCV)
+  find_package(OpenCV COMPONENTS core imgproc opencv_highgui REQUIRED HINTS ~/opencv/release)
+  message("OpenCV includes = ${OpenCV_INCLUDE_DIRS}")
+  message("OpenCV libs = ${OpenCV_LIBS}")
+  message("OpenCV_DIR = ${OpenCV_DIR}")
+endif()
+
+include_directories(../include 
+                    ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES} 
+                    ${OpenCV_INCLUDE_DIRS})
 
 file(GLOB C_SRC_LIST *.c)
 file(GLOB CPP_SRC_LIST *.cpp *.cc)
@@ -55,6 +66,5 @@ target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_11)
 set_target_properties(${PROJECT_NAME} PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 set_target_properties(${PROJECT_NAME} PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-#set(EXTRA_LIBS ${EXTRA_LIBS} cudnn)
-target_link_libraries(${PROJECT_NAME} ${EXTRA_LIBS} )
+target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS} )
 

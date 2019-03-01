@@ -7,6 +7,7 @@ message("WANT_GPU = ${WANT_GPU}, WANT_CUDNN = ${WANT_CUDNN}, "
 message("${PROJECT_NAME} targeting cuda architecture : ${CUDA_ARCH}")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wno-unused-result -Wno-unknown-pragmas -Wfatal-errors")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-unused-result -Wno-unknown-pragmas -Wfatal-errors")
 
 # find OpenMP and setup compiler and linker flags
 if (WANT_OPENMP)
@@ -31,8 +32,19 @@ if (WANT_CUDNN)
   add_definitions(-DCUDNN)
 endif()
 
-include_directories(${INCLUDE_DIRS} ../include ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
+if (WANT_OPENCV)
+  add_definitions(-DOPENCV)
+  find_package(OpenCV COMPONENTS core imgproc opencv_highgui REQUIRED HINTS ~/opencv/release)
+  message("OpenCV includes = ${OpenCV_INCLUDE_DIRS}")
+  message("OpenCV libs = ${OpenCV_LIBS}")
+  message("OpenCV_DIR = ${OpenCV_DIR}")
+endif()
+
+include_directories(../include 
+                    ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES} 
+                    ${OpenCV_INCLUDE_DIRS})
 link_directories(${CMAKE_CUDA_IMPLICIT_LINK_DIRECTORIES})
+
 
 file(GLOB SRC_LIST *.cpp *.cc *.c)
 file(GLOB HDR_LIST *.h *.hpp)
@@ -50,7 +62,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES POSITION_INDEPENDENT_CODE ON)
 # Set output name to "darknet"
 set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "darknet")
 
-# link to libdarknet.so
-set(EXTRA_LIBS ${EXTRA_LIBS} darknet pthread m cudnn cublas curand)
+# link to libdarknet.so and other libraries
+set(EXTRA_LIBS ${EXTRA_LIBS} darknet pthread m cudnn cublas curand ${OpenCV_LIBS})
 target_link_libraries(${PROJECT_NAME} ${EXTRA_LIBS} )
 
