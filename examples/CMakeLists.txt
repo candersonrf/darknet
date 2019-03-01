@@ -34,7 +34,7 @@ endif()
 
 if (WANT_OPENCV)
   add_definitions(-DOPENCV)
-  find_package(OpenCV COMPONENTS core imgproc opencv_highgui REQUIRED HINTS ~/opencv/release)
+  find_package(OpenCV ${OPENCV_VERSION} COMPONENTS core imgproc opencv_highgui REQUIRED HINTS ~/opencv/release)
   message("OpenCV includes = ${OpenCV_INCLUDE_DIRS}")
   message("OpenCV libs = ${OpenCV_LIBS}")
   message("OpenCV_DIR = ${OpenCV_DIR}")

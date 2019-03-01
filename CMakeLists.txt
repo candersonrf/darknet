@@ -9,6 +9,7 @@ set(WANT_OPENCV off CACHE BOOL "")
 set(WANT_OPENMP off CACHE BOOL "")
 set(WANT_GPU off CACHE BOOL "")
 set(WANT_CUDNN off CACHE BOOL "")
+set(OPENCV_VERSION "" CACHE STRING "")
 
 if (NOT CUDA_ARCH)
   set(CUDA_ARCH "sm_52")
